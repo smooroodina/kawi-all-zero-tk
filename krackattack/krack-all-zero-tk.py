@@ -541,7 +541,7 @@ class KRAckAttack():
                    lfilter=lambda p: Dot11Beacon in p,
                    opened_socket=self.sock_real)
         for p in ps:
-            if(get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode() == ssid):
+            if(get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode('utf-8') == ssid):
                 beacon_p = p
                 break;
         if not beacon_p:
@@ -553,7 +553,7 @@ class KRAckAttack():
                    lfilter=lambda p: Dot11Beacon in p,
                    opened_socket=self.sock_real)
                 for p in ps:
-                    if(int.from_bytes(get_tlv_value(p, IEEE_TLV_TYPE_CHANNEL)) == chan and get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode() == ssid):
+                    if(ord(get_tlv_value(p, IEEE_TLV_TYPE_CHANNEL)) == chan and get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode('utf-8') == ssid):
                         beacon_p = p
                         break;
 
