@@ -8,8 +8,7 @@
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'scapy'))
 from scapy.all import *  # noqa: E402
-from scapy.arch.linux import L2Socket
-#from scapy.arch.bpf.core import attach_filter
+from scapy.arch.linux import L2Socket, attach_filter
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
