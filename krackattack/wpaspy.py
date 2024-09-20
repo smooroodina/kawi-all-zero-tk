@@ -81,13 +81,16 @@ class Ctrl:
             self.started = False
 
     def request(self, cmd, timeout=10):
+        if isinstance(cmd, str):
+            cmd = cmd.encode('utf-8')
         if self.udp:
             self.s.sendto(self.cookie + cmd, self.sockaddr)
         else:
             self.s.send(cmd)
         [r, w, e] = select.select([self.s], [], [], timeout)
         if r:
-            return self.s.recv(4096)
+            response = self.s.recv(4096)
+            return response.decode('utf-8')
         raise Exception("Timeout on waiting response")
 
     def attach(self):

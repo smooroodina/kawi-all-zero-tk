@@ -134,7 +134,7 @@ class MitmSocket(L2Socket):
         #	allows us to detect cross-channel frames (received due to proximity of transmissors on different channel)
         if p[Dot11].FCfield & 0x20 != 0 and (not self.strict_echo_test or self.radiotap_possible_injection):
             log(DEBUG, "%s: ignoring echoed frame %s (0x%02X, present=%08X, strict=%d)" % (
-            self.iface, dot11_to_str(p), p[Dot11].FCfield, p[RadioTap].present, radiotap_possible_injection))
+            self.iface, dot11_to_str(p), p[Dot11].FCfield.value, p[RadioTap].present.value, radiotap_possible_injection))
             return None
         else:
             log(ALL, "%s: Received frame: %s" % (self.iface, dot11_to_str(p)))
@@ -151,7 +151,7 @@ def call_macchanger(iface, macaddr):
     try:
         subprocess.check_output(["macchanger", "-m", macaddr, iface])
     except subprocess.CalledProcessError as ex:
-        if not "It's the same MAC!!" in ex.output:
+        if not "It's the same MAC!!" in ex.output.decode('utf-8'):
             raise
 
 
@@ -871,7 +871,7 @@ class KRAckAttack():
 
     def handle_hostapd_out(self):
         # hostapd always prints lines so this should not block
-        line = self.hostapd.stdout.readline()
+        line = self.hostapd.stdout.readline().decode('utf-8')
         if line == "":
             log(ERROR, "Rogue hostapd instances unexpectedly closed")
             quit(1)
