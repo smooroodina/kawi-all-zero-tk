@@ -38,7 +38,7 @@ class Ctrl:
             self.s.bind(self.local)
             try:
                 self.s.connect(self.dest)
-            except Exception, e:
+            except Exception as e:
                 self.s.close()
                 os.unlink(self.local)
                 raise
@@ -57,7 +57,7 @@ class Ctrl:
                 self.cookie = reply
                 self.port = port
             except:
-                print "connect exception ", path, str(port)
+                print("connect exception "), path, str(port)
                 if self.s != None:
                     self.s.close()
                 raise
@@ -70,7 +70,7 @@ class Ctrl:
         if self.attached:
             try:
                 self.detach()
-            except Exception, e:
+            except Exception as e:
                 # Need to ignore this allow the socket to be closed
                 self.attached = False
                 pass
@@ -114,7 +114,7 @@ class Ctrl:
         if self.attached:
             try:
                 self.detach()
-            except Exception, e:
+            except Exception as e:
                 # Need to ignore this to allow the socket to be closed
                 self.attached = False
         self.request("TERMINATE")

