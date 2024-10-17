@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 # wpa_supplicant v2.4 - v2.6 all-zero encryption key attack
 # Copyright (c) 2017, Mathy Vanhoef <Mathy.Vanhoef@cs.kuleuven.be>
@@ -1054,10 +1054,13 @@ def cleanup():
 if __name__ == "__main__":
     description = textwrap.dedent(
         """\
-		Key Reinstallation Attacks (KRACKs) by Mathy Vanhoef
+        
+        █ ▗ █ ▀ ▁▁ ▊▀▀ ▀    ▉▁▁█ ▗▛▚  ▟▔▀▬ ▉ ▟▛ 
+        ▜▄▀▄▘ ▊ ▔▔ █▔▔ ▊    █▔ ▊ █▔▔▊ ▜▄▃▞ █▔▚▃ 
+		
+        Based on: Key Reinstallation Attacks (KRACKs) by Mathy Vanhoef
 		-----------------------------------------------------------
-		  - Uses CSA beacons to obtain channel-based MitM position
-		  - Can detect and handle wpa_supplicant all-zero key installations""")
+        """)
     parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     # Required arguments

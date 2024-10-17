@@ -1,0 +1,2 @@
+krack-all-zero-tk.py
+krack-all-zero-tk.py wlan0 wlan1 monodoo2.4 -t 0e:d8:72:50:96:93 --debug
