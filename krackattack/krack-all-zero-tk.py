@@ -118,7 +118,8 @@ class MitmSocket(L2Socket):
 
         # Don't care about control frames
         if p.type == 1:
-            log(ALL, "%s: ignoring control frame %s" % (self.iface, dot11_to_str(p)))
+            #log(ALL, "%s: ignoring control frame %s" % (self.iface, dot11_to_str(p)))
+            log(ALL, "%s: ignoring control frame" % (self.iface))
             return None
 
         # 1. Radiotap monitor mode header is defined in ieee80211_add_tx_radiotap_header: TX_FLAGS, DATA_RETRIES, [RATE, MCS, VHT, ]
@@ -133,8 +134,9 @@ class MitmSocket(L2Socket):
         # Hack: ignore frames that we just injected and are echoed back by the kernel. Note that the More Data flag also
         #	allows us to detect cross-channel frames (received due to proximity of transmissors on different channel)
         if p[Dot11].FCfield & 0x20 != 0 and (not self.strict_echo_test or self.radiotap_possible_injection):
-            log(DEBUG, "%s: ignoring echoed frame %s (0x%02X, present=%08X, strict=%d)" % (
-            self.iface, dot11_to_str(p), p[Dot11].FCfield.value, p[RadioTap].present.value, radiotap_possible_injection))
+            #log(DEBUG, "%s: ignoring echoed frame %s (0x%02X, present=%08X, strict=%d)" % (
+            #self.iface, dot11_to_str(p), p[Dot11].FCfield.value, p[RadioTap].present.value, radiotap_possible_injection))
+            log(DEBUG, "%s: ignoring echoed frame" % (self.iface))
             return None
         else:
             log(ALL, "%s: Received frame: %s" % (self.iface, dot11_to_str(p)))
@@ -210,7 +212,7 @@ def get_eapol_msgnum(p):
 
     if not EAPOL in p: return 0
 
-    keyinfo = str(p[EAPOL])[5:7]
+    keyinfo = bytes(p[EAPOL])[5:7]
     flags = struct.unpack(">H", keyinfo)[0]
     if flags & FLAG_PAIRWISE:
         # 4-way handshake
@@ -223,7 +225,7 @@ def get_eapol_msgnum(p):
         else:
             # sent by server
             # FIXME: use p[EAPOL.load] instead of str(p[EAPOL])
-            keydatalen = struct.unpack(">H", str(p[EAPOL])[97:99])[0]
+            keydatalen = struct.unpack(">H", bytes(p[EAPOL])[97:99])[0]
             if keydatalen == 0:
                 return 4
             else:
@@ -234,7 +236,7 @@ def get_eapol_msgnum(p):
 
 def get_eapol_replaynum(p):
     # FIXME: use p[EAPOL.load] instead of str(p[EAPOL])
-    return struct.unpack(">Q", str(p[EAPOL])[9:17])[0]
+    return struct.unpack(">Q", bytes(p[EAPOL])[9:17])[0]
 
 
 def set_eapol_replaynum(p, value):
