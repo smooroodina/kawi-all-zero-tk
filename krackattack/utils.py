@@ -21,6 +21,12 @@ COLORCODES = {"gray": "\033[0;37m",
 
 global_log_level = INFO
 
+def set_log_level(level):
+    global global_log_level
+    if level in [ALL, DEBUG, INFO, STATUS, WARNING, ERROR]:
+        global_log_level = level
+    else:
+        raise ValueError("Invalid log level")
 
 def log(level, msg, color=None, showtime=True):
     if level < global_log_level: return
