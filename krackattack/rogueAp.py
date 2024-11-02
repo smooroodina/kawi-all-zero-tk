@@ -179,6 +179,8 @@ wpa_passphrase=XXXXXXXX"""
                 fp.write(self.netconfig.write_config(iface))
         self.hostapd = subprocess.Popen(["../hostap-ct/hostapd/hostapd", "hostapd_rogue.conf", "-dd", "-K"],
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # FIXME: strace -p <PID> -> stdout and stderr buffer cannot be cleared(Only when directly run this module as __main__)
+        # try subprocess.Popen with this options: bufsize=1, universal_newlines=True
         print("Hostapd PID:", self.hostapd.pid)
         self.hostapd_log = open("hostapd_rogue.log", "w")
 
