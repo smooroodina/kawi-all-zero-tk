@@ -165,7 +165,7 @@ wpa_passphrase=XXXXXXXX"""
         if not self.status == RogueAP.Down: return
         
         self.move_status(RogueAP.Starting)
-        
+        print(self.status)
         try:
             if self.netconfig.bssid is not None:
                 log(STATUS, "Setting MAC address of %s to %s" % (iface, self.netconfig.bssid))
@@ -179,19 +179,18 @@ wpa_passphrase=XXXXXXXX"""
                 fp.write(self.netconfig.write_config(iface))
         self.hostapd = subprocess.Popen(["../hostap-ct/hostapd/hostapd", "hostapd_rogue.conf", "-dd", "-K"],
                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("Hostapd PID:", self.hostapd.pid)
         self.hostapd_log = open("hostapd_rogue.log", "w")
 
         log(STATUS, "Giving the rogue hostapd one second to initialize ...")
         time.sleep(1)
-
         self.hostapd_ctrl = Ctrl("hostapd_ctrl/" + iface)
         self.hostapd_ctrl.attach()
-
         if self.status != RogueAP.Starting:
+            print(self.status)
             self.move_status(RogueAP.Configure_Error)
             return
         self.move_status(RogueAP.Active)
-
         if not keep_watching: return
         try:
             while self.status == RogueAP.Active:
@@ -208,6 +207,7 @@ wpa_passphrase=XXXXXXXX"""
         log(STATUS, "Closing hostapd and cleaning up ...")
         if self.hostapd:
             self.hostapd.terminate()
+            print("Waiting...")
             self.hostapd.wait()
         if self.hostapd_log:
             self.hostapd_log.close()
@@ -228,7 +228,7 @@ if __name__ == "__main__":
 
     atexit.register(cleanup)
 
-    # rogue_ap.run('wlan1', update_conf=False)
+    #rogue_ap.run('wlan1', update_conf=False, keep_watching=True)
 
     sample_beacon_p = RadioTap(bytes.fromhex("00000f002a000000500000000000d980000000ffffffffffff588694a0b468588694a0b46800546fc12d070f0100006400110c000a6d6f6e6f646f6f322e34010882848b961224486c03010332040c1830603308200102030405060733082105060708090a0b050400010000dd270050f204104a0001101044000102104700102880288028801880a880588694a0b468103c0001012a01042d1a6e1017ffff0000010000000000000000000000000c00000000003d16030006000000000000000000000000000000000000004a0e14000a002c01c80014000500190030140100000fac040100000fac040100000fac020000dd180050f2020101800003a4000027a4000042435e0062322f000b0502000a127add07000c43070000000000002c"))
     print(sample_beacon_p)

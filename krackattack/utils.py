@@ -125,7 +125,6 @@ def get_eapol_msgnum(p):
 
 
 def get_eapol_replaynum(p):
-    # FIXME: use p[EAPOL.load] instead of str(p[EAPOL])
     return struct.unpack(">Q", bytes(p[EAPOL])[9:17])[0]
 
 

