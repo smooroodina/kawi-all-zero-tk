@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+
+# wpa_supplicant v2.4 - v2.6 all-zero encryption key attack
+# Copyright (c) 2017, Mathy Vanhoef <Mathy.Vanhoef@cs.kuleuven.be>
+#
+# Modified by team KaWi, 2024
+#
+# This code may be distributed under the terms of the BSD license.
+# See README for more details.
+
 from scapy.all import *  # noqa: E402
 
 from datetime import datetime
