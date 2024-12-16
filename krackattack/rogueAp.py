@@ -68,10 +68,10 @@ class RogueAP:
                 elif el.ID == IEEE_TLV_TYPE_RSN:
                     self.parse_wparsn(el.info)
                     self.wpa_version |= 2
-                elif el.ID == IEEE_TLV_TYPE_VENDOR and el.info[:4] == "\x00\x50\xf2\x01":
+                elif el.ID == IEEE_TLV_TYPE_VENDOR and el.info[:4] == b"\x00\x50\xf2\x01":
                     self.parse_wparsn(el.info[4:])
                     self.wpa_version |= 1
-                elif el.ID == IEEE_TLV_TYPE_VENDOR and el.info[:4] == "\x00\x50\xf2\x02":
+                elif el.ID == IEEE_TLV_TYPE_VENDOR and el.info[:4] == b"\x00\x50\xf2\x02":
                     self.wmm_enabled = 1
 
                 el = el.payload
@@ -97,16 +97,27 @@ wmm_enabled={wmm_enabled}
 wmm_advertised={wmm_enabled}
 
 auth_algs=3
-wpa_passphrase=XXXXXXXX"""
-            akm2str = {2: "WPA-PSK", 1: "WPA-EAP"}
+wpa_passphrase=XXXXXXXX
+
+
+# optional
+nas_identifier=rogue-ap
+
+"""
+            #FIXME WPA: IE in 3/4 msg does not match with IE in Beacon/ProbeResp
+            akm2str = {2: "WPA-PSK", 1: "WPA-EAP", 4: "FT-PSK", 3:"FT-EAP"}
             ciphers2str = {2: "TKIP", 4: "CCMP"}
+            print("wmm_enabled:", self.wmm_enabled)
+            print("ptksa_replay_counters: ", (self.rsn_capab & 0b001100) >> 2)
+            print("gtksa_replay_counters: ", (self.rsn_capab & 0b001100) >> 4)
+
             return TEMPLATE.format(
                 iface=iface,
                 ssid=self.ssid,
                 channel=self.channel,
                 wpa_version=self.wpa_version,
                 auth_key_mgmts=" ".join([akm2str[idx] for idx in self.auth_key_mgmts]),
-                pairwise_ciphers=" ".join([ciphers2str[idx] for idx in self.pairwise_ciphers]),
+                pairwise_ciphers=" ".join([ciphers2str[idx] for idx in self.pairwise_ciphers if idx in ciphers2str]),
                 ptksa_replay_counters=(self.rsn_capab & 0b001100) >> 2,
                 gtksa_replay_counters=(self.rsn_capab & 0b110000) >> 4,
                 wmm_advertised=self.wmm_enabled,

@@ -124,7 +124,6 @@ def get_eapol_msgnum(p):
                 return 1
         else:
             # sent by server
-            # FIXME: use p[EAPOL.load] instead of str(p[EAPOL])
             keydatalen = struct.unpack(">H", bytes(p[EAPOL])[97:99])[0]
             if keydatalen == 0:
                 return 4
@@ -139,7 +138,10 @@ def get_eapol_replaynum(p):
 
 
 def set_eapol_replaynum(p, value):
-    p[EAPOL].load = p[EAPOL].load[:5] + struct.pack(">Q", value) + p[EAPOL].load[13:]
+    # EAPOL Header: 6 bytes
+    ## ex) 00 5f 02 00 00 8a
+    # EAPOL_KEY section: key_length(2 bytes) + replay_counter(8 bytes) + nonce + ...
+    p[EAPOL] = EAPOL(bytes(p[EAPOL])[:9] + struct.pack(">Q", value) + bytes(p[EAPOL])[17:])
     return p
 
 

